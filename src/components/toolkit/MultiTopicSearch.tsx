@@ -35,6 +35,7 @@ export const MultiTopicSearch = () => {
   const [languageFilter, setLanguageFilter] = useState('all');
   const [languages, setLanguages] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [expandedRepos, setExpandedRepos] = useState<Set<number>>(new Set());
   const { toast } = useToast();
 
   // Load saved topics from localStorage on mount
@@ -174,6 +175,18 @@ export const MultiTopicSearch = () => {
   const filteredRepositories = repositories.filter(repo => 
     languageFilter === 'all' || repo.language === languageFilter
   );
+
+  const toggleRepoExpansion = (repoId: number) => {
+    setExpandedRepos(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(repoId)) {
+        newSet.delete(repoId);
+      } else {
+        newSet.add(repoId);
+      }
+      return newSet;
+    });
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString();
@@ -361,7 +374,7 @@ export const MultiTopicSearch = () => {
 
                   {repo.topics && repo.topics.length > 0 && (
                     <div className="flex flex-wrap gap-1">
-                      {repo.topics.slice(0, 10).map((topic) => (
+                      {(expandedRepos.has(repo.id) ? repo.topics : repo.topics.slice(0, 10)).map((topic) => (
                         <Badge 
                           key={topic} 
                           variant={selectedTopics.includes(topic) ? "default" : "secondary"}
@@ -371,9 +384,17 @@ export const MultiTopicSearch = () => {
                         </Badge>
                       ))}
                       {repo.topics.length > 10 && (
-                        <Badge variant="outline" className="text-xs">
-                          +{repo.topics.length - 10} more
-                        </Badge>
+                        <button
+                          onClick={() => toggleRepoExpansion(repo.id)}
+                          className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          <Badge variant="outline" className="text-xs cursor-pointer hover:bg-accent">
+                            {expandedRepos.has(repo.id) 
+                              ? 'Show less' 
+                              : `+${repo.topics.length - 10} more`
+                            }
+                          </Badge>
+                        </button>
                       )}
                     </div>
                   )}
