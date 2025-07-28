@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -13,12 +13,23 @@ export const GitHubToolkit = () => {
   const [activeTab, setActiveTab] = useState<TabType>('multi-topic');
   const [darkMode, setDarkMode] = useState(true);
 
+  // Initialize dark mode on component mount
+  useEffect(() => {
+    // Set initial dark mode state
+    document.documentElement.classList.remove('light');
+    document.documentElement.classList.add('dark');
+  }, []);
+
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
     if (darkMode) {
+      // Switching to light mode
+      document.documentElement.classList.remove('dark');
       document.documentElement.classList.add('light');
     } else {
+      // Switching to dark mode
       document.documentElement.classList.remove('light');
+      document.documentElement.classList.add('dark');
     }
   };
 
