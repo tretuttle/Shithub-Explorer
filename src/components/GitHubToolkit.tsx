@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Github } from 'lucide-react';
-import '../types/dark-mode-toggle';
 import { MultiTopicSearch } from './toolkit/MultiTopicSearch';
 import { AssociatedOrgFinder } from './toolkit/AssociatedOrgFinder';
 import { RepoExplorer } from './toolkit/RepoExplorer';
