@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, X, Star, GitFork, ExternalLink, Calendar } from 'lucide-react';
+import { Search, X, Star, GitFork, ExternalLink, Calendar, Plus, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface Repository {
@@ -34,11 +34,25 @@ export const MultiTopicSearch = () => {
   const [sortBy, setSortBy] = useState('stars');
   const [languageFilter, setLanguageFilter] = useState('all');
   const [languages, setLanguages] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const { toast } = useToast();
 
-  // Fetch topic suggestions as user types
+  // Load saved topics from localStorage on mount
   useEffect(() => {
-    if (searchInput.length > 2) {
+    const savedTopics = localStorage.getItem('github-topics-history');
+    if (savedTopics) {
+      try {
+        const topics = JSON.parse(savedTopics);
+        // Don't auto-load topics, just keep them available for suggestions
+      } catch (error) {
+        console.error('Error loading saved topics:', error);
+      }
+    }
+  }, []);
+
+  // Fetch topic suggestions when input is focused and has content
+  useEffect(() => {
+    if (searchInput.length > 2 && showSuggestions) {
       const timeoutId = setTimeout(async () => {
         try {
           const response = await fetch(`https://api.github.com/search/topics?q=${encodeURIComponent(searchInput)}`);
@@ -55,33 +69,74 @@ export const MultiTopicSearch = () => {
     } else {
       setSuggestedTopics([]);
     }
-  }, [searchInput]);
+  }, [searchInput, showSuggestions]);
 
   const addTopic = (topic: string) => {
-    if (!selectedTopics.includes(topic)) {
-      setSelectedTopics([...selectedTopics, topic]);
+    const trimmedTopic = topic.trim();
+    if (trimmedTopic && !selectedTopics.includes(trimmedTopic)) {
+      const newTopics = [...selectedTopics, trimmedTopic];
+      setSelectedTopics(newTopics);
       setSearchInput('');
       setSuggestedTopics([]);
+      setShowSuggestions(false);
+      
+      // Save to localStorage history
+      saveTopicToHistory(trimmedTopic);
+      
+      // Auto-search when topics are added
+      setTimeout(() => searchRepositories(newTopics), 100);
+    }
+  };
+
+  const addCurrentInput = () => {
+    if (searchInput.trim()) {
+      addTopic(searchInput);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addCurrentInput();
+    } else if (e.key === 'Escape') {
+      setShowSuggestions(false);
+    }
+  };
+
+  const saveTopicToHistory = (topic: string) => {
+    try {
+      const savedTopics = localStorage.getItem('github-topics-history');
+      const history = savedTopics ? JSON.parse(savedTopics) : [];
+      const updatedHistory = [topic, ...history.filter((t: string) => t !== topic)].slice(0, 20);
+      localStorage.setItem('github-topics-history', JSON.stringify(updatedHistory));
+    } catch (error) {
+      console.error('Error saving topic to history:', error);
     }
   };
 
   const removeTopic = (topic: string) => {
-    setSelectedTopics(selectedTopics.filter(t => t !== topic));
+    const newTopics = selectedTopics.filter(t => t !== topic);
+    setSelectedTopics(newTopics);
+    // Auto-search with remaining topics
+    setTimeout(() => searchRepositories(newTopics), 100);
   };
 
-  const searchRepositories = async () => {
-    if (selectedTopics.length === 0) {
-      toast({
-        title: 'No topics selected',
-        description: 'Please select at least one topic to search.',
-        variant: 'destructive',
-      });
+  const clearAllTopics = () => {
+    setSelectedTopics([]);
+    setRepositories([]);
+    setLanguages([]);
+  };
+
+  const searchRepositories = async (topicsToSearch: string[] = selectedTopics) => {
+    if (topicsToSearch.length === 0) {
+      setRepositories([]);
+      setLanguages([]);
       return;
     }
 
     setLoading(true);
     try {
-      const topicsQuery = selectedTopics.map(topic => `topic:${topic}`).join('+');
+      const topicsQuery = topicsToSearch.map(topic => `topic:${topic}`).join('+');
       const response = await fetch(`https://api.github.com/search/repositories?q=${topicsQuery}&sort=${sortBy}&per_page=50`);
       
       if (response.ok) {
@@ -92,10 +147,12 @@ export const MultiTopicSearch = () => {
         const uniqueLanguages = [...new Set(data.items.map((repo: Repository) => repo.language).filter(Boolean))] as string[];
         setLanguages(uniqueLanguages);
         
-        toast({
-          title: 'Search completed',
-          description: `Found ${data.items.length} repositories matching your criteria.`,
-        });
+        if (data.items.length > 0) {
+          toast({
+            title: 'Search completed',
+            description: `Found ${data.items.length} repositories matching your criteria.`,
+          });
+        }
       } else if (response.status === 403) {
         toast({
           title: 'Rate limit exceeded',
@@ -134,55 +191,85 @@ export const MultiTopicSearch = () => {
       {/* Topic Input Section */}
       <Card className="p-4 bg-surface-elevated border-border">
         <div className="space-y-4">
-          <div className="relative">
-            <Input
-              type="text"
-              placeholder="Type to search for topics..."
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              className="bg-input border-border"
-            />
-            {suggestedTopics.length > 0 && (
-              <div className="absolute top-full left-0 right-0 z-10 bg-popover border border-border rounded-md mt-1 max-h-48 overflow-y-auto">
-                {suggestedTopics.map((topic) => (
-                  <button
-                    key={topic.name}
-                    className="w-full text-left px-3 py-2 hover:bg-accent text-foreground"
-                    onClick={() => addTopic(topic.name)}
-                  >
-                    {topic.display_name || topic.name}
-                  </button>
-                ))}
-              </div>
-            )}
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Input
+                type="text"
+                placeholder="Add custom topic or search suggestions..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onKeyDown={handleKeyPress}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                className="bg-input border-border"
+              />
+              {suggestedTopics.length > 0 && showSuggestions && (
+                <div className="absolute top-full left-0 right-0 z-10 bg-popover border border-border rounded-md mt-1 max-h-48 overflow-y-auto">
+                  {suggestedTopics.map((topic) => (
+                    <button
+                      key={topic.name}
+                      className="w-full text-left px-3 py-2 hover:bg-accent text-foreground"
+                      onClick={() => addTopic(topic.name)}
+                    >
+                      <span className="font-medium">{topic.display_name || topic.name}</span>
+                      <span className="text-xs text-muted-foreground block">Suggested</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <Button 
+              onClick={addCurrentInput}
+              disabled={!searchInput.trim()}
+              variant="outline"
+              size="icon"
+            >
+              <Plus className="w-4 h-4" />
+            </Button>
           </div>
 
           {/* Selected Topics */}
-          {selectedTopics.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {selectedTopics.map((topic) => (
-                <Badge key={topic} variant="secondary" className="flex items-center gap-1">
-                  {topic}
-                  <button
-                    onClick={() => removeTopic(topic)}
-                    className="ml-1 hover:bg-destructive hover:text-destructive-foreground rounded-full p-0.5"
+          <div className="space-y-3">
+            {selectedTopics.length > 0 && (
+              <>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-foreground">
+                    Selected Topics ({selectedTopics.length})
+                  </span>
+                  <Button 
+                    onClick={clearAllTopics}
+                    variant="ghost"
+                    size="sm"
+                    className="text-muted-foreground hover:text-foreground"
                   >
-                    <X className="w-3 h-3" />
-                  </button>
-                </Badge>
-              ))}
+                    <Trash2 className="w-3 h-3 mr-1" />
+                    Clear All
+                  </Button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {selectedTopics.map((topic) => (
+                    <Badge key={topic} variant="default" className="flex items-center gap-1">
+                      {topic}
+                      <button
+                        onClick={() => removeTopic(topic)}
+                        className="ml-1 hover:bg-primary-foreground hover:text-primary rounded-full p-0.5"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+
+          {selectedTopics.length === 0 && (
+            <div className="text-center py-8 text-muted-foreground">
+              <Search className="w-8 h-8 mx-auto mb-2 opacity-50" />
+              <p>Add topics to start discovering repositories</p>
+              <p className="text-xs mt-1">Type any topic name and press Enter or click the + button</p>
             </div>
           )}
-
-          <Button 
-            onClick={searchRepositories} 
-            disabled={loading || selectedTopics.length === 0}
-            className="w-full"
-            variant="github"
-          >
-            <Search className="w-4 h-4 mr-2" />
-            {loading ? 'Searching...' : 'Search Repositories'}
-          </Button>
         </div>
       </Card>
 
