@@ -6,40 +6,33 @@ interface CustomThemeToggleProps {
 
 export const CustomThemeToggle: React.FC<CustomThemeToggleProps> = ({ className = '' }) => {
   const [isDark, setIsDark] = useState(() => {
-    // Check initial theme from document or localStorage
-    return document.documentElement.classList.contains('dark') || 
-           localStorage.getItem('dark-mode-toggle::/') === '"dark"';
+    // Check document class first
+    const hasDocumentDark = document.documentElement.classList.contains('dark');
+    
+    // Check localStorage with proper parsing
+    let localStorageTheme = null;
+    try {
+      const stored = localStorage.getItem('dark-mode-toggle::/');
+      if (stored) {
+        localStorageTheme = JSON.parse(stored);
+      }
+    } catch (e) {
+      console.log('Error parsing localStorage theme:', e);
+    }
+    
+    const initialIsDark = hasDocumentDark || localStorageTheme === 'dark';
+    console.log('Initial theme detection:', {
+      hasDocumentDark,
+      localStorageTheme,
+      initialIsDark
+    });
+    
+    return initialIsDark;
   });
   
   useEffect(() => {
-    // Import the dark-mode-toggle web component
+    // Just import the dark-mode-toggle web component, no event listeners
     import('dark-mode-toggle');
-    
-    // Set up initial theme state sync
-    const syncThemeState = () => {
-      const darkModeToggle = document.querySelector('#github-toolkit-theme-toggle') as any;
-      if (darkModeToggle) {
-        const currentMode = darkModeToggle.mode || 'light';
-        setIsDark(currentMode === 'dark');
-        console.log('Synced theme state:', currentMode);
-      }
-    };
-    
-    // Wait for the web component to be ready
-    setTimeout(syncThemeState, 100);
-    
-    // Listen for theme changes from the dark-mode-toggle component
-    const handleColorSchemeChange = (e: CustomEvent) => {
-      const newIsDark = e.detail.colorScheme === 'dark';
-      setIsDark(newIsDark);
-      console.log('Theme changed via colorschemechange:', e.detail.colorScheme);
-    };
-
-    document.addEventListener('colorschemechange', handleColorSchemeChange as EventListener);
-    
-    return () => {
-      document.removeEventListener('colorschemechange', handleColorSchemeChange as EventListener);
-    };
   }, []);
 
   const handleToggleClick = () => {
