@@ -11,16 +11,27 @@ type TabType = 'multi-topic' | 'org-finder' | 'repo-explorer';
 export const GitHubToolkit = () => {
   const [activeTab, setActiveTab] = useState<TabType>('multi-topic');
 
-  // Set up dark mode toggle integration
+  // Set up dark mode toggle integration with View Transitions API
   useEffect(() => {
     // Import the dark-mode-toggle web component
     import('dark-mode-toggle');
     
+    // Function to switch theme with View Transitions API support
+    const switchTheme = (isDark: boolean) => {
+      document.documentElement.classList.toggle('dark', isDark);
+      document.documentElement.classList.toggle('light', !isDark);
+    };
+    
     // Set up event listener for color scheme changes
     const handleColorSchemeChange = (e: CustomEvent) => {
       const isDark = e.detail.colorScheme === 'dark';
-      document.documentElement.classList.toggle('dark', isDark);
-      document.documentElement.classList.toggle('light', !isDark);
+      
+      // Use View Transitions API if supported
+      if (document.startViewTransition) {
+        document.startViewTransition(() => switchTheme(isDark));
+      } else {
+        switchTheme(isDark);
+      }
     };
 
     document.addEventListener('colorschemechange', handleColorSchemeChange as EventListener);
