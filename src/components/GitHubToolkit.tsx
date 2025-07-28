@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
-import { Github, Moon, Sun } from 'lucide-react';
+import { Github } from 'lucide-react';
+import '../types/dark-mode-toggle';
 import { MultiTopicSearch } from './toolkit/MultiTopicSearch';
 import { AssociatedOrgFinder } from './toolkit/AssociatedOrgFinder';
 import { RepoExplorer } from './toolkit/RepoExplorer';
@@ -11,27 +11,25 @@ type TabType = 'multi-topic' | 'org-finder' | 'repo-explorer';
 
 export const GitHubToolkit = () => {
   const [activeTab, setActiveTab] = useState<TabType>('multi-topic');
-  const [darkMode, setDarkMode] = useState(true);
 
-  // Initialize dark mode on component mount
+  // Set up dark mode toggle integration
   useEffect(() => {
-    // Set initial dark mode state
-    document.documentElement.classList.add('dark');
-    document.documentElement.classList.remove('light');
-  }, []);
+    // Import the dark-mode-toggle web component
+    import('dark-mode-toggle');
+    
+    // Set up event listener for color scheme changes
+    const handleColorSchemeChange = (e: CustomEvent) => {
+      const isDark = e.detail.colorScheme === 'dark';
+      document.documentElement.classList.toggle('dark', isDark);
+      document.documentElement.classList.toggle('light', !isDark);
+    };
 
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    if (darkMode) {
-      // Switching to light mode
-      document.documentElement.classList.remove('dark');
-      document.documentElement.classList.add('light');
-    } else {
-      // Switching to dark mode
-      document.documentElement.classList.remove('light');
-      document.documentElement.classList.add('dark');
-    }
-  };
+    document.addEventListener('colorschemechange', handleColorSchemeChange as EventListener);
+    
+    return () => {
+      document.removeEventListener('colorschemechange', handleColorSchemeChange as EventListener);
+    };
+  }, []);
 
   const tabs = [
     { id: 'multi-topic', label: 'Multi-Topic Search', icon: Github },
@@ -69,11 +67,19 @@ export const GitHubToolkit = () => {
             </div>
             
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Sun className="w-4 h-4" />
-                <Switch checked={darkMode} onCheckedChange={toggleDarkMode} />
-                <Moon className="w-4 h-4" />
-              </div>
+              <dark-mode-toggle
+                id="github-toolkit-theme-toggle"
+                appearance="switch"
+                permanent
+                light="Light"
+                dark="Dark"
+                style={{
+                  '--dark-mode-toggle-color': 'hsl(var(--foreground))',
+                  '--dark-mode-toggle-background-color': 'transparent',
+                  '--dark-mode-toggle-active-mode-background-color': 'hsl(var(--accent))',
+                  '--dark-mode-toggle-icon-size': '1rem'
+                } as React.CSSProperties}
+              ></dark-mode-toggle>
             </div>
           </div>
         </div>
