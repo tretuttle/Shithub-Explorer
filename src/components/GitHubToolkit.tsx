@@ -5,6 +5,7 @@ import { Github } from 'lucide-react';
 import { MultiTopicSearch } from './toolkit/MultiTopicSearch';
 import { AssociatedOrgFinder } from './toolkit/AssociatedOrgFinder';
 import { RepoExplorer } from './toolkit/RepoExplorer';
+import { CustomThemeToggle } from './ui/custom-theme-toggle';
 
 type TabType = 'multi-topic' | 'org-finder' | 'repo-explorer';
 
@@ -77,6 +78,8 @@ export const GitHubToolkit = () => {
             </div>
             
             <div className="flex items-center gap-4">
+              <CustomThemeToggle />
+              {/* Hidden dark-mode-toggle for logic only */}
               <dark-mode-toggle
                 id="github-toolkit-theme-toggle"
                 appearance="switch"
@@ -84,10 +87,7 @@ export const GitHubToolkit = () => {
                 light="Light"
                 dark="Dark"
                 style={{
-                  '--dark-mode-toggle-color': 'hsl(var(--foreground))',
-                  '--dark-mode-toggle-background-color': 'transparent',
-                  '--dark-mode-toggle-active-mode-background-color': 'hsl(var(--accent))',
-                  '--dark-mode-toggle-icon-size': '1rem'
+                  display: 'none'
                 } as React.CSSProperties}
               ></dark-mode-toggle>
             </div>
