@@ -18,12 +18,16 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        github: "bg-gradient-primary text-primary-foreground hover:opacity-90 transition-all duration-200 shadow-lg hover:shadow-primary/25",
+        tab: "bg-transparent text-muted-foreground hover:text-foreground hover:bg-accent border-b-2 border-transparent hover:border-primary rounded-none px-6 py-3",
+        "tab-active": "bg-transparent text-foreground border-b-2 border-primary rounded-none px-6 py-3",
       },
       size: {
         default: "h-10 px-4 py-2",
         sm: "h-9 rounded-md px-3",
         lg: "h-11 rounded-md px-8",
         icon: "h-10 w-10",
+        tab: "h-12 px-6",
       },
     },
     defaultVariants: {
