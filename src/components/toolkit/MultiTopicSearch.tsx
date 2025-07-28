@@ -374,25 +374,66 @@ export const MultiTopicSearch = () => {
 
                   {repo.topics && repo.topics.length > 0 && (
                     <div className="flex flex-wrap gap-1">
-                      {(expandedRepos.has(repo.id) ? repo.topics : repo.topics.slice(0, 10)).map((topic) => (
-                        <Badge 
-                          key={topic} 
-                          variant={selectedTopics.includes(topic) ? "default" : "secondary"}
-                          className="text-xs"
-                        >
-                          {topic}
-                        </Badge>
-                      ))}
-                      {repo.topics.length > 10 && (
+                      {(() => {
+                        if (expandedRepos.has(repo.id)) {
+                          // Show all topics when expanded
+                          return repo.topics.map((topic) => (
+                            <Badge 
+                              key={topic} 
+                              variant={selectedTopics.includes(topic) ? "default" : "secondary"}
+                              className="text-xs"
+                            >
+                              {topic}
+                            </Badge>
+                          ));
+                        } else {
+                          // Prioritize selected topics, then show others up to limit
+                          const selectedRepoTopics = repo.topics.filter(topic => selectedTopics.includes(topic));
+                          const nonSelectedTopics = repo.topics.filter(topic => !selectedTopics.includes(topic));
+                          const remainingSlots = Math.max(0, 10 - selectedRepoTopics.length);
+                          const visibleNonSelected = nonSelectedTopics.slice(0, remainingSlots);
+                          const hiddenCount = nonSelectedTopics.length - visibleNonSelected.length;
+                          
+                          return [
+                            ...selectedRepoTopics.map((topic) => (
+                              <Badge 
+                                key={topic} 
+                                variant="default"
+                                className="text-xs"
+                              >
+                                {topic}
+                              </Badge>
+                            )),
+                            ...visibleNonSelected.map((topic) => (
+                              <Badge 
+                                key={topic} 
+                                variant="secondary"
+                                className="text-xs"
+                              >
+                                {topic}
+                              </Badge>
+                            )),
+                            hiddenCount > 0 && (
+                              <button
+                                key="expand-button"
+                                onClick={() => toggleRepoExpansion(repo.id)}
+                                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                              >
+                                <Badge variant="outline" className="text-xs cursor-pointer hover:bg-accent">
+                                  +{hiddenCount} more
+                                </Badge>
+                              </button>
+                            )
+                          ].filter(Boolean);
+                        }
+                      })()}
+                      {expandedRepos.has(repo.id) && repo.topics.length > 10 && (
                         <button
                           onClick={() => toggleRepoExpansion(repo.id)}
                           className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                         >
                           <Badge variant="outline" className="text-xs cursor-pointer hover:bg-accent">
-                            {expandedRepos.has(repo.id) 
-                              ? 'Show less' 
-                              : `+${repo.topics.length - 10} more`
-                            }
+                            Show less
                           </Badge>
                         </button>
                       )}
