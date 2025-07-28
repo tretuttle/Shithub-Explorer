@@ -12,9 +12,24 @@ type TabType = 'multi-topic' | 'org-finder' | 'repo-explorer';
 export const GitHubToolkit = () => {
   const [activeTab, setActiveTab] = useState<TabType>('multi-topic');
 
-  // Just import dark-mode-toggle for any dependencies but let CustomThemeToggle handle theme switching
+  // Set up hidden dark-mode-toggle for robust system management
   useEffect(() => {
-    import('dark-mode-toggle');
+    import('dark-mode-toggle').then(() => {
+      // Create hidden dark-mode-toggle for system management
+      let darkModeToggle = document.querySelector('dark-mode-toggle') as any;
+      
+      if (!darkModeToggle) {
+        darkModeToggle = document.createElement('dark-mode-toggle');
+        darkModeToggle.setAttribute('id', 'github-toolkit-theme-toggle');
+        darkModeToggle.setAttribute('appearance', 'toggle');
+        darkModeToggle.setAttribute('permanent', ''); // Prevent auto-insertion elsewhere
+        darkModeToggle.style.display = 'none'; // Hide the built-in UI
+        darkModeToggle.style.visibility = 'hidden';
+        darkModeToggle.style.position = 'absolute';
+        darkModeToggle.style.left = '-9999px';
+        document.body.appendChild(darkModeToggle);
+      }
+    });
   }, []);
 
   const tabs = [

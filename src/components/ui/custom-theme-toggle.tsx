@@ -5,50 +5,45 @@ interface CustomThemeToggleProps {
 }
 
 export const CustomThemeToggle: React.FC<CustomThemeToggleProps> = ({ className = '' }) => {
-  const [isDark, setIsDark] = useState(() => {
-    // Check document class first
-    const hasDocumentDark = document.documentElement.classList.contains('dark');
-    
-    // Check localStorage with proper parsing
-    let localStorageTheme = null;
-    try {
-      const stored = localStorage.getItem('dark-mode-toggle::/');
-      if (stored) {
-        localStorageTheme = JSON.parse(stored);
-      }
-    } catch (e) {
-      console.log('Error parsing localStorage theme:', e);
-    }
-    
-    const initialIsDark = hasDocumentDark || localStorageTheme === 'dark';
-    console.log('Initial theme detection:', {
-      hasDocumentDark,
-      localStorageTheme,
-      initialIsDark
-    });
-    
-    return initialIsDark;
-  });
+  const [isDark, setIsDark] = useState(false);
   
   useEffect(() => {
-    import('dark-mode-toggle');
+    // Listen for changes from the dark-mode-toggle system
+    const handleColorSchemeChange = (e: CustomEvent) => {
+      const newIsDark = e.detail.colorScheme === 'dark';
+      console.log('Received colorschemechange event:', newIsDark);
+      setIsDark(newIsDark);
+    };
+
+    // Get initial state from dark-mode-toggle
+    const updateFromDarkModeToggle = () => {
+      const darkModeToggle = document.querySelector('#github-toolkit-theme-toggle') as any;
+      if (darkModeToggle) {
+        const currentMode = darkModeToggle.mode;
+        const newIsDark = currentMode === 'dark';
+        console.log('Initial dark-mode-toggle state:', currentMode);
+        setIsDark(newIsDark);
+      }
+    };
+
+    // Set up event listener
+    document.addEventListener('colorschemechange', handleColorSchemeChange as EventListener);
+    
+    // Check initial state after a short delay to ensure dark-mode-toggle is ready
+    const timer = setTimeout(updateFromDarkModeToggle, 100);
+    
+    return () => {
+      document.removeEventListener('colorschemechange', handleColorSchemeChange as EventListener);
+      clearTimeout(timer);
+    };
   }, []);
 
-  // Function to switch theme with View Transitions API support
-  const switchTheme = useCallback((newIsDark: boolean) => {
-    console.log('Switching theme to:', newIsDark ? 'dark' : 'light');
-    
-    // Apply theme classes
-    document.documentElement.classList.toggle('dark', newIsDark);
-    document.documentElement.classList.toggle('light', !newIsDark);
-    
-    // Store in localStorage
-    localStorage.setItem('dark-mode-toggle::/', JSON.stringify(newIsDark ? 'dark' : 'light'));
-    
-    // Sync with hidden dark-mode-toggle component
-    const darkModeToggle = document.querySelector('#github-toolkit-theme-toggle') as any;
-    if (darkModeToggle) {
-      darkModeToggle.mode = newIsDark ? 'dark' : 'light';
+  // Function to apply View Transitions API
+  const applyViewTransition = useCallback((callback: () => void) => {
+    if (document.startViewTransition) {
+      document.startViewTransition(callback);
+    } else {
+      callback();
     }
   }, []);
 
@@ -56,23 +51,19 @@ export const CustomThemeToggle: React.FC<CustomThemeToggleProps> = ({ className 
     e.preventDefault();
     e.stopPropagation();
     
-    console.log('Custom toggle clicked, current isDark:', isDark);
+    console.log('Custom toggle clicked, telling dark-mode-toggle to toggle');
     
-    // Use functional state update to ensure we're working with latest state
-    setIsDark(prevIsDark => {
-      const newIsDark = !prevIsDark;
-      console.log('State update: prev =', prevIsDark, ', new =', newIsDark);
-      
-      // Apply theme changes with View Transitions API
-      if (document.startViewTransition) {
-        document.startViewTransition(() => switchTheme(newIsDark));
-      } else {
-        switchTheme(newIsDark);
-      }
-      
-      return newIsDark;
-    });
-  }, [isDark, switchTheme]);
+    // Get the dark-mode-toggle element and let it handle the logic
+    const darkModeToggle = document.querySelector('#github-toolkit-theme-toggle') as any;
+    if (darkModeToggle) {
+      // Apply View Transitions API to the toggle action
+      applyViewTransition(() => {
+        darkModeToggle.toggleMode(); // Let dark-mode-toggle handle all the system logic
+      });
+    } else {
+      console.warn('Dark mode toggle element not found');
+    }
+  }, [applyViewTransition]);
 
   return (
     <div className={className}>
