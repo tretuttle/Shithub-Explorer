@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 interface CustomThemeToggleProps {
   className?: string;
@@ -31,43 +31,56 @@ export const CustomThemeToggle: React.FC<CustomThemeToggleProps> = ({ className 
   });
   
   useEffect(() => {
-    // Just import the dark-mode-toggle web component, no event listeners
     import('dark-mode-toggle');
   }, []);
 
-  const handleToggleClick = () => {
-    console.log('Custom toggle clicked, current isDark:', isDark);
+  // Function to switch theme with View Transitions API support
+  const switchTheme = useCallback((newIsDark: boolean) => {
+    console.log('Switching theme to:', newIsDark ? 'dark' : 'light');
     
-    // Update React state immediately
-    const newIsDark = !isDark;
-    setIsDark(newIsDark);
-    console.log('Updated React state to:', newIsDark ? 'dark' : 'light');
-    
-    // Apply theme classes immediately
+    // Apply theme classes
     document.documentElement.classList.toggle('dark', newIsDark);
     document.documentElement.classList.toggle('light', !newIsDark);
     
-    // Store in localStorage immediately
+    // Store in localStorage
     localStorage.setItem('dark-mode-toggle::/', JSON.stringify(newIsDark ? 'dark' : 'light'));
     
-    // Try to sync with the dark-mode-toggle component
+    // Sync with hidden dark-mode-toggle component
     const darkModeToggle = document.querySelector('#github-toolkit-theme-toggle') as any;
     if (darkModeToggle) {
-      const newMode = newIsDark ? 'dark' : 'light';
-      darkModeToggle.mode = newMode;
-      console.log('Synced dark-mode-toggle to:', newMode);
-    } else {
-      console.log('No dark-mode-toggle element found, using fallback');
+      darkModeToggle.mode = newIsDark ? 'dark' : 'light';
     }
-  };
+  }, []);
+
+  const handleToggleClick = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    console.log('Custom toggle clicked, current isDark:', isDark);
+    
+    // Use functional state update to ensure we're working with latest state
+    setIsDark(prevIsDark => {
+      const newIsDark = !prevIsDark;
+      console.log('State update: prev =', prevIsDark, ', new =', newIsDark);
+      
+      // Apply theme changes with View Transitions API
+      if (document.startViewTransition) {
+        document.startViewTransition(() => switchTheme(newIsDark));
+      } else {
+        switchTheme(newIsDark);
+      }
+      
+      return newIsDark;
+    });
+  }, [isDark, switchTheme]);
 
   return (
     <div className={className}>
-      <label className="theme-toggle-container" onClick={handleToggleClick}>
+      <label className="theme-toggle-container">
         <input 
           type="checkbox" 
           checked={isDark}
-          readOnly
+          onChange={handleToggleClick}
           className="theme-toggle-input"
         />
         <span className="theme-toggle-slider round">
