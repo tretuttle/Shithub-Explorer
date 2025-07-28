@@ -16,8 +16,8 @@ export const GitHubToolkit = () => {
   // Initialize dark mode on component mount
   useEffect(() => {
     // Set initial dark mode state
-    document.documentElement.classList.remove('light');
     document.documentElement.classList.add('dark');
+    document.documentElement.classList.remove('light');
   }, []);
 
   const toggleDarkMode = () => {
