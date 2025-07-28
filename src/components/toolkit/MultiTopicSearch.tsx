@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Search, X, Star, GitFork, ExternalLink, Calendar, Plus, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -27,7 +28,8 @@ interface GitHubTopic {
 
 export const MultiTopicSearch = () => {
   const [searchInput, setSearchInput] = useState('');
-  const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
+  const [allTopics, setAllTopics] = useState<string[]>([]);
+  const [checkedTopics, setCheckedTopics] = useState<string[]>([]);
   const [suggestedTopics, setSuggestedTopics] = useState<GitHubTopic[]>([]);
   const [repositories, setRepositories] = useState<Repository[]>([]);
   const [loading, setLoading] = useState(false);
@@ -74,9 +76,11 @@ export const MultiTopicSearch = () => {
 
   const addTopic = (topic: string) => {
     const trimmedTopic = topic.trim();
-    if (trimmedTopic && !selectedTopics.includes(trimmedTopic)) {
-      const newTopics = [...selectedTopics, trimmedTopic];
-      setSelectedTopics(newTopics);
+    if (trimmedTopic && !allTopics.includes(trimmedTopic)) {
+      const newAllTopics = [...allTopics, trimmedTopic];
+      const newCheckedTopics = [...checkedTopics, trimmedTopic];
+      setAllTopics(newAllTopics);
+      setCheckedTopics(newCheckedTopics);
       setSearchInput('');
       setSuggestedTopics([]);
       setShowSuggestions(false);
@@ -85,7 +89,7 @@ export const MultiTopicSearch = () => {
       saveTopicToHistory(trimmedTopic);
       
       // Auto-search when topics are added
-      setTimeout(() => searchRepositories(newTopics), 100);
+      setTimeout(() => searchRepositories(newCheckedTopics), 100);
     }
   };
 
@@ -115,20 +119,34 @@ export const MultiTopicSearch = () => {
     }
   };
 
+  const toggleTopicCheck = (topic: string, checked: boolean) => {
+    if (checked) {
+      const newCheckedTopics = [...checkedTopics, topic];
+      setCheckedTopics(newCheckedTopics);
+      setTimeout(() => searchRepositories(newCheckedTopics), 100);
+    } else {
+      const newCheckedTopics = checkedTopics.filter(t => t !== topic);
+      setCheckedTopics(newCheckedTopics);
+      setTimeout(() => searchRepositories(newCheckedTopics), 100);
+    }
+  };
+
   const removeTopic = (topic: string) => {
-    const newTopics = selectedTopics.filter(t => t !== topic);
-    setSelectedTopics(newTopics);
-    // Auto-search with remaining topics
-    setTimeout(() => searchRepositories(newTopics), 100);
+    const newAllTopics = allTopics.filter(t => t !== topic);
+    const newCheckedTopics = checkedTopics.filter(t => t !== topic);
+    setAllTopics(newAllTopics);
+    setCheckedTopics(newCheckedTopics);
+    setTimeout(() => searchRepositories(newCheckedTopics), 100);
   };
 
   const clearAllTopics = () => {
-    setSelectedTopics([]);
+    setAllTopics([]);
+    setCheckedTopics([]);
     setRepositories([]);
     setLanguages([]);
   };
 
-  const searchRepositories = async (topicsToSearch: string[] = selectedTopics) => {
+  const searchRepositories = async (topicsToSearch: string[] = checkedTopics) => {
     if (topicsToSearch.length === 0) {
       setRepositories([]);
       setLanguages([]);
@@ -243,11 +261,11 @@ export const MultiTopicSearch = () => {
 
           {/* Selected Topics */}
           <div className="space-y-3">
-            {selectedTopics.length > 0 && (
+            {allTopics.length > 0 && (
               <>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-foreground">
-                    Selected Topics ({selectedTopics.length})
+                    Topics ({checkedTopics.length}/{allTopics.length} selected)
                   </span>
                   <Button 
                     onClick={clearAllTopics}
@@ -260,23 +278,35 @@ export const MultiTopicSearch = () => {
                   </Button>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {selectedTopics.map((topic) => (
-                    <Badge key={topic} variant="default" className="flex items-center gap-1">
-                      {topic}
-                      <button
-                        onClick={() => removeTopic(topic)}
-                        className="ml-1 hover:bg-primary-foreground hover:text-primary rounded-full p-0.5"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </Badge>
-                  ))}
+                  {allTopics.map((topic) => {
+                    const isChecked = checkedTopics.includes(topic);
+                    return (
+                      <div key={topic} className={`flex items-center gap-2 p-2 rounded-md border ${isChecked ? 'bg-primary/10 border-primary/20' : 'bg-muted/50 border-border'}`}>
+                        <Checkbox
+                          checked={isChecked}
+                          onCheckedChange={(checked) => toggleTopicCheck(topic, !!checked)}
+                        />
+                        <Badge 
+                          variant={isChecked ? "default" : "secondary"} 
+                          className={`flex items-center gap-1 ${!isChecked ? 'opacity-60' : ''}`}
+                        >
+                          {topic}
+                          <button
+                            onClick={() => removeTopic(topic)}
+                            className="ml-1 hover:bg-primary-foreground hover:text-primary rounded-full p-0.5"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </Badge>
+                      </div>
+                    );
+                  })}
                 </div>
               </>
             )}
           </div>
 
-          {selectedTopics.length === 0 && (
+          {allTopics.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
               <Search className="w-8 h-8 mx-auto mb-2 opacity-50" />
               <p>Add topics to start discovering repositories</p>
@@ -380,16 +410,16 @@ export const MultiTopicSearch = () => {
                           return repo.topics.map((topic) => (
                             <Badge 
                               key={topic} 
-                              variant={selectedTopics.includes(topic) ? "default" : "secondary"}
-                              className="text-xs"
-                            >
-                              {topic}
-                            </Badge>
-                          ));
-                        } else {
-                          // Prioritize selected topics, then show others up to limit
-                          const selectedRepoTopics = repo.topics.filter(topic => selectedTopics.includes(topic));
-                          const nonSelectedTopics = repo.topics.filter(topic => !selectedTopics.includes(topic));
+                               variant={checkedTopics.includes(topic) ? "default" : "secondary"}
+                               className="text-xs"
+                             >
+                               {topic}
+                             </Badge>
+                           ));
+                         } else {
+                           // Prioritize selected topics, then show others up to limit
+                           const selectedRepoTopics = repo.topics.filter(topic => checkedTopics.includes(topic));
+                           const nonSelectedTopics = repo.topics.filter(topic => !checkedTopics.includes(topic));
                           const remainingSlots = Math.max(0, 10 - selectedRepoTopics.length);
                           const visibleNonSelected = nonSelectedTopics.slice(0, remainingSlots);
                           const hiddenCount = nonSelectedTopics.length - visibleNonSelected.length;
