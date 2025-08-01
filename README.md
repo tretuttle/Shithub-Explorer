@@ -38,3 +38,5 @@ Look, it's a web app. It has buttons. You click them. Things happen. Revolutiona
 ---
 
 *Built with way too much caffeine and a questionable amount of existential dread about the state of modern web development* ☕️
+
+<!-- Trigger GitHub Pages setup -->
