@@ -10,6 +10,10 @@
 [![Made with ❤️](https://img.shields.io/badge/Made%20with-❤️-red.svg)](https://github.com/tretuttle/Shithub-Explorer)
 [![Powered by Coffee](https://img.shields.io/badge/Powered%20by-Coffee-brown.svg)](https://buymeacoffee.com)
 
+## 🤷‍♂️ Why Does This Exist?
+
+Because sometimes at 2:47 AM you remember seeing this *perfect* repository that would solve all your problems, but you can only remember it had something to do with "machine learning" and maybe it was from Google? Or was it Facebook? Or one of their 47 subsidiary organizations?
+
 > Ever wanted to search for more than a single topic at one time? Tired of not being able to find the right repo you found one night while doom scrolling at 3:00am? Wondering why you can't find something amongst the billion of accounts each big company has? **Shithub Explorer** is here for you. 🕵️‍♂️
 
 ## 🎯 What This Actually Does
@@ -25,8 +29,5 @@ GitHub's search is... *fine*... but sometimes you need to dig deeper than what t
 
 Stop reading and start clicking: **[https://tretuttle.github.io/Shithub-Explorer/](https://tretuttle.github.io/Shithub-Explorer/)**
 
-## 🤷‍♂️ Why Does This Exist?
-
-Because sometimes at 2:47 AM you remember seeing this *perfect* repository that would solve all your problems, but you can only remember it had something to do with "machine learning" and maybe it was from Google? Or was it Facebook? Or one of their 47 subsidiary organizations?
 
 
