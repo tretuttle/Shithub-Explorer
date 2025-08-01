@@ -6,45 +6,45 @@
 
 @layer base {
   :root {
-    /* Dark mode by default - GitHub-inspired color palette */
-    --background: 220 13% 9%;
-    --foreground: 220 9% 98%;
+    /* Light mode by default - GitHub-inspired color palette */
+    --background: 220 13% 98%;
+    --foreground: 220 13% 9%;
     
     /* Surface colors */
-    --surface: 220 13% 12%;
-    --surface-elevated: 220 13% 16%;
-    --surface-highlight: 220 13% 20%;
+    --surface: 220 13% 96%;
+    --surface-elevated: 220 13% 100%;
+    --surface-highlight: 220 13% 93%;
     
     /* Cards and components */
-    --card: 220 13% 12%;
-    --card-foreground: 220 9% 98%;
+    --card: 220 13% 100%;
+    --card-foreground: 220 13% 9%;
     
-    --popover: 220 13% 16%;
-    --popover-foreground: 220 9% 98%;
+    --popover: 220 13% 100%;
+    --popover-foreground: 220 13% 9%;
     
     /* Primary - GitHub blue */
     --primary: 213 94% 68%;
     --primary-foreground: 220 13% 9%;
     
     /* Secondary surfaces */
-    --secondary: 220 13% 16%;
-    --secondary-foreground: 220 9% 98%;
+    --secondary: 220 13% 96%;
+    --secondary-foreground: 220 13% 9%;
     
     /* Muted elements */
-    --muted: 220 13% 16%;
-    --muted-foreground: 220 9% 65%;
+    --muted: 220 13% 96%;
+    --muted-foreground: 220 9% 45%;
     
     /* Accent colors */
-    --accent: 220 13% 20%;
-    --accent-foreground: 220 9% 98%;
+    --accent: 220 13% 93%;
+    --accent-foreground: 220 13% 9%;
     
     /* Destructive states */
     --destructive: 0 84% 60%;
     --destructive-foreground: 220 9% 98%;
     
     /* Borders and inputs */
-    --border: 220 13% 24%;
-    --input: 220 13% 16%;
+    --border: 220 13% 88%;
+    --input: 220 13% 100%;
     --ring: 213 94% 68%;
 
     --radius: 0.5rem;
@@ -63,7 +63,7 @@
     
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(213 94% 68%), hsl(213 94% 78%));
-    --gradient-surface: linear-gradient(135deg, hsl(220 13% 12%), hsl(220 13% 16%));
+    --gradient-surface: linear-gradient(135deg, hsl(220 13% 96%), hsl(220 13% 100%));
     
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -90,37 +90,36 @@
     );
   }
 
-  .light {
-    /* Light mode overrides */
-    --background: 220 13% 98%;
-    --foreground: 220 13% 9%;
+  .dark {
+    /* Dark mode overrides */
+    --background: 220 13% 9%;
+    --foreground: 220 9% 98%;
     
     /* Surface colors */
-    --surface: 220 13% 96%;
-    --surface-elevated: 220 13% 100%;
-    --surface-highlight: 220 13% 93%;
+    --surface: 220 13% 12%;
+    --surface-elevated: 220 13% 16%;
+    --surface-highlight: 220 13% 20%;
     
-    --card: 220 13% 100%;
-    --card-foreground: 220 13% 9%;
+    --card: 220 13% 12%;
+    --card-foreground: 220 9% 98%;
     
-    --popover: 220 13% 100%;
-    --popover-foreground: 220 13% 9%;
+    --popover: 220 13% 16%;
+    --popover-foreground: 220 9% 98%;
     
-    --secondary: 220 13% 96%;
-    --secondary-foreground: 220 13% 9%;
+    --secondary: 220 13% 16%;
+    --secondary-foreground: 220 9% 98%;
     
-    --muted: 220 13% 96%;
-    --muted-foreground: 220 9% 45%;
+    --muted: 220 13% 16%;
+    --muted-foreground: 220 9% 65%;
     
-    --accent: 220 13% 93%;
-    --accent-foreground: 220 13% 9%;
+    --accent: 220 13% 20%;
+    --accent-foreground: 220 9% 98%;
     
-    --border: 220 13% 88%;
-    --input: 220 13% 100%;
-    --ring: 213 94% 68%;
+    --border: 220 13% 24%;
+    --input: 220 13% 16%;
     
-    /* Light mode gradients */
-    --gradient-surface: linear-gradient(135deg, hsl(220 13% 96%), hsl(220 13% 100%));
+    /* Dark mode gradients */
+    --gradient-surface: linear-gradient(135deg, hsl(220 13% 12%), hsl(220 13% 16%));
   }
 }
 
