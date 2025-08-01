@@ -1,13 +1,13 @@
 # 🤡 Shithub Explorer
 
-[![Build Status](https://github.com/tretuttle/shithub-explorer/workflows/deploy/badge.svg)](https://github.com/tretuttle/shithub-explorer/actions)
+[![Build Status](https://github.com/tretuttle/Shithub-Explorer/workflows/deploy/badge.svg)](https://github.com/tretuttle/Shithub-Explorer/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB)](https://reactjs.org/)
 [![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![GitHub stars](https://img.shields.io/github/stars/tretuttle/shithub-explorer?style=social)](https://github.com/tretuttle/shithub-explorer/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/tretuttle/shithub-explorer?style=social)](https://github.com/tretuttle/shithub-explorer/network)
-[![Made with ❤️](https://img.shields.io/badge/Made%20with-❤️-red.svg)](https://github.com/tretuttle/shithub-explorer)
+[![GitHub stars](https://img.shields.io/github/stars/tretuttle/Shithub-Explorer?style=social)](https://github.com/tretuttle/Shithub-Explorer/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/tretuttle/Shithub-Explorer?style=social)](https://github.com/tretuttle/Shithub-Explorer/network)
+[![Made with ❤️](https://img.shields.io/badge/Made%20with-❤️-red.svg)](https://github.com/tretuttle/Shithub-Explorer)
 [![Powered by Coffee](https://img.shields.io/badge/Powered%20by-Coffee-brown.svg)](https://buymeacoffee.com)
 
 > Ever wanted to search for more than a single topic at one time? Tired of not being able to find the right repo you found one night while doom scrolling at 3:00am? Wondering why you can't find something amongst the billion of accounts each big company has? **Shithub Explorer** is here for you. 🕵️‍♂️
@@ -23,7 +23,7 @@ Let's be real - GitHub's search is... *fine*... but sometimes you need to dig de
 
 ## 🚀 Try It Out (The Fun Part)
 
-Stop reading and start clicking: **[https://tretuttle.github.io/shithub-explorer/](https://tretuttle.github.io/shithub-explorer/)**
+Stop reading and start clicking: **[https://tretuttle.github.io/Shithub-Explorer/](https://tretuttle.github.io/Shithub-Explorer/)**
 
 ## 🤷‍♂️ Why Does This Exist?
 
